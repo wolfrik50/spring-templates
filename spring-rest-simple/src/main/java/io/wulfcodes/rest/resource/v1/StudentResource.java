@@ -16,7 +16,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
-import io.wulfcodes.rest.model.Student;
+import io.wulfcodes.rest.model.data.StudentData;
+import io.wulfcodes.rest.model.exchange.GenericResponse;
+import io.wulfcodes.rest.model.exchange.StudentRequest;
+import io.wulfcodes.rest.model.exchange.StudentResponse;
+import io.wulfcodes.rest.model.entity.Student;
 import io.wulfcodes.rest.service.StudentService;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -33,45 +37,43 @@ public class StudentResource {
     private StudentService studentService;
 
     @PostMapping
-    public ResponseEntity<Student> insertStudent(
+    public ResponseEntity<GenericResponse> insertStudent(
         @RequestBody
-        Student newStudent,
+        StudentRequest newStudent,
         @Autowired
         UriComponentsBuilder uriBuilder,
         @Autowired
         HttpServletRequest servletRequest
     ) {
-        // System.out.println(newStudent);
-
         try {
-            Student createdStudent = studentService.addStudent(newStudent);
+            String studentId = studentService.addStudent(newStudent.getStudentData());
             URI location = uriBuilder.path(servletRequest.getRequestURI().concat("/{studentId}"))
-                .buildAndExpand(createdStudent.getId())
+                .buildAndExpand(studentId)
                 .toUri();
 
-            return ResponseEntity.created(location).body(createdStudent);
+            return ResponseEntity.created(location).body(GenericResponse.successResponse(String.format("Student created successfully with id: %s", studentId)));
         } catch (Exception ex) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @GetMapping
-    public ResponseEntity<List<Student>> fetchAllStudents() {
+    public ResponseEntity<StudentResponse> fetchAllStudents() {
         try {
-            List<Student> students = studentService.getStudents();
+            List<StudentData> students = studentService.getStudents();
             return students.isEmpty()
                 ? ResponseEntity.noContent().build()
-                : ResponseEntity.ok(students);
+                : ResponseEntity.ok(StudentResponse.successResponse(students));
         } catch (Exception ex) {
             return ResponseEntity.internalServerError().build();
         }
     }
 
     @GetMapping("/{studentId}")
-    public ResponseEntity<Student> fetchStudent(@PathVariable("studentId") String id) {
+    public ResponseEntity<StudentResponse> fetchStudent(@PathVariable("studentId") String id) {
         try {
-            Optional<Student> fetchedStudent = studentService.getStudentById(id);
-            return fetchedStudent.map(student -> ResponseEntity.ok(student))
+            Optional<StudentData> fetchedStudent = studentService.getStudentById(id);
+            return fetchedStudent.map(student -> ResponseEntity.ok(StudentResponse.successResponse(student)))
                 .orElse(ResponseEntity.notFound().build());
         } catch (Exception ex) {
             return ResponseEntity.internalServerError().build();

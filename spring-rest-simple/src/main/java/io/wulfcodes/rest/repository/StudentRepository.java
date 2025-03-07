@@ -1,39 +1,45 @@
-package io.wulfcodes.rest.service;
+package io.wulfcodes.rest.repository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 import io.wulfcodes.rest.model.data.StudentData;
 import io.wulfcodes.rest.model.entity.Student;
-import io.wulfcodes.rest.repository.StudentRepository;
 
-@Service
-public class StudentService {
-
-    @Autowired
-    private StudentRepository studentRepository;
+@Component
+public class StudentRepository {
+    private final List<Student> students = new ArrayList<>();
 
     public String addStudent(StudentData newStudent) {
-        newStudent.setId(UUID.randomUUID().toString());
-        return studentRepository.addStudent(newStudent);
+        Student student = new Student(newStudent);
+        students.add(student);
+        return student.getId();
     }
 
     public List<StudentData> getStudents() {
-        return studentRepository.getStudents();
+        return students.stream()
+            .map(Student::convertToStudentData)
+            .toList();
     }
 
     public Optional<StudentData> getStudentById(String id) {
-        return studentRepository.getStudentById(id);
+        return students.stream()
+            .filter(student -> student.getId().equals(id))
+            .findAny()
+            .map(Student::convertToStudentData);
     }
 
-    public Optional<StudentData> updateStudent(String id, StudentData updatedStudent) {
-        updatedStudent.setId(id);
-        updatedStudent.setUpdatedAt(LocalDateTime.now());
-        return studentRepository.updateStudent(updatedStudent);
+    public Optional<StudentData> updateStudent(StudentData updatedStudent) {
+        for (int i = 0; i < students.size(); i++)
+            if (students.get(i).getId().equals(updatedStudent.getId())) {
+                updatedStudent.setUpdatedAt(LocalDateTime.now());
+                students.set(i, updatedStudent);
+                return Optional.of(updatedStudent);
+            }
+        return Optional.empty();
     }
 
     public Optional<Student> modifyStudent(String id, Student updatedStudent) {
@@ -60,5 +66,4 @@ public class StudentService {
 
         return deletedStudent;
     }
-
 }

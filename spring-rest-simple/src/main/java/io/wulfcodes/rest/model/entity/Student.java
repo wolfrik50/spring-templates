@@ -1,13 +1,17 @@
-package io.wulfcodes.rest.model;
+package io.wulfcodes.rest.model.entity;
 
 import java.lang.reflect.Field;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.logging.Logger;
+import io.wulfcodes.rest.model.data.StudentData;
+import io.wulfcodes.rest.model.value.Gender;
 
 public class Student {
     private static final Logger logger = Logger.getLogger(Student.class.getName());
+
+    private final LocalDateTime createdAt;
 
     private String id;
     private String name;
@@ -16,16 +20,22 @@ public class Student {
     private Long phoneNo;
     private Gender gender;
     private LocalDate dateOfBirth;
-    private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    public enum Gender {
-        MALE, FEMALE;
-    }
 
     public Student() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public Student(StudentData studentData) {
+        this();
+        this.id = studentData.getId();
+        this.name = studentData.getName();
+        this.rollNo = studentData.getRollNo();
+        this.email = studentData.getEmail();
+        this.phoneNo = studentData.getPhoneNo();
+        this.gender = studentData.getGender();
+        this.dateOfBirth = studentData.getDateOfBirth();
     }
 
     public void setId(String id) {
@@ -54,10 +64,6 @@ public class Student {
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
     }
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
@@ -98,6 +104,10 @@ public class Student {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public StudentData convertToStudentData() {
+        return new StudentData(id, name, rollNo, email, phoneNo, gender, dateOfBirth, createdAt, updatedAt);
     }
 
     public Student modify(Student that) {

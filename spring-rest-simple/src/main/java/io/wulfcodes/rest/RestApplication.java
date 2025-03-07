@@ -1,18 +1,10 @@
 package io.wulfcodes.rest;
 
-import java.lang.reflect.Modifier;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import io.wulfcodes.rest.model.Student;
-import io.wulfcodes.rest.service.StudentService;
 
 @SpringBootApplication
 public class RestApplication implements CommandLineRunner {
